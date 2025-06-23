@@ -286,7 +286,7 @@ def describe_image_with_bedrock(image_bytes, language='en'):
     elif image_bytes.startswith(b'RIFF') and b'WEBP' in image_bytes[:12]:
         image_format = "webp"
     
-    # Create language-specific prompt
+    # Create language-specific prompt with configurable word count
     prompt = get_language_prompt(language)
     
     # Prepare the request payload for the AI model
@@ -310,7 +310,7 @@ def describe_image_with_bedrock(image_bytes, language='en'):
             }
         ],
         "inferenceConfig": {
-            "maxTokens": 300
+            "maxTokens": 75
         }
     }
     
@@ -383,31 +383,34 @@ def validate_language_code(language):
     }
     return language.lower() in supported_languages
 
-def get_language_prompt(language):
+def get_language_prompt(language, max_words=15):
     """
-    Get language-specific prompt for image description
+    Get optimized language-specific prompt for concise image description
+    Args:
+        language: ISO 639-1 language code
+        max_words: Maximum number of words for the description (default: 15)
     """
     prompts = {
-        'en': "Please describe what you see in this image in detail.",
-        'es': "Por favor describe lo que ves en esta imagen en detalle.",
-        'ja': "この画像に写っているものを詳しく説明してください。",
-        'fr': "Veuillez décrire ce que vous voyez dans cette image en détail.",
-        'de': "Bitte beschreiben Sie detailliert, was Sie in diesem Bild sehen.",
-        'it': "Per favore descrivi in dettaglio quello che vedi in questa immagine.",
-        'pt': "Por favor, descreva o que você vê nesta imagem em detalhes.",
-        'ru': "Пожалуйста, подробно опишите то, что вы видите на этом изображении.",
-        'ko': "이 이미지에서 보이는 것을 자세히 설명해 주세요.",
-        'zh': "请详细描述您在这张图片中看到的内容。",
-        'ar': "يرجى وصف ما تراه في هذه الصورة بالتفصيل.",
-        'hi': "कृपया इस छवि में आप जो देख रहे हैं उसका विस्तार से वर्णन करें।",
-        'tr': "Lütfen bu resimde gördüklerinizi ayrıntılı olarak açıklayın.",
-        'pl': "Proszę szczegółowo opisać to, co widzisz na tym obrazie.",
-        'nl': "Beschrijf alstublieft in detail wat u in deze afbeelding ziet.",
-        'sv': "Vänligen beskriv i detalj vad du ser i denna bild.",
-        'da': "Beskriv venligst i detaljer, hvad du ser i dette billede.",
-        'no': "Vennligst beskriv i detalj hva du ser i dette bildet.",
-        'fi': "Kuvaile yksityiskohtaisesti, mitä näet tässä kuvassa.",
-        'is': "Vinsamlegast lýstu því sem þú sérð á þessari mynd í smáatriðum."
+        'en': f"Describe in under {max_words} words what's visible:",
+        'es': f"Describe en menos de {max_words} palabras lo visible:",
+        'ja': f"{max_words}語以内で見えるものを説明:",
+        'fr': f"Décris en moins de {max_words} mots ce qui est visible:",
+        'de': f"Beschreibe in unter {max_words} Wörtern was sichtbar ist:",
+        'it': f"Descrivi in meno di {max_words} parole ciò che è visibile:",
+        'pt': f"Descreva em menos de {max_words} palavras o que está visível:",
+        'ru': f"Опиши менее чем в {max_words} словах что видно:",
+        'ko': f"{max_words}단어 이내로 보이는 것을 설명:",
+        'zh': f"用不到{max_words}个词描述可见内容:",
+        'ar': f"صف في أقل من {max_words} كلمات ما هو مرئي:",
+        'hi': f"{max_words} शब्दों में दिखाई देने वाली चीज़ों का वर्णन:",
+        'tr': f"{max_words} kelimeden az ile görüneni tanımla:",
+        'pl': f"Opisz w mniej niż {max_words} słowach co widać:",
+        'nl': f"Beschrijf in minder dan {max_words} woorden wat zichtbaar is:",
+        'sv': f"Beskriv i under {max_words} ord vad som syns:",
+        'da': f"Beskriv i under {max_words} ord hvad der er synligt:",
+        'no': f"Beskriv i under {max_words} ord hva som er synlig:",
+        'fi': f"Kuvaile alle {max_words} sanalla mitä näkyy:",
+        'is': f"Lýstu í færri en {max_words} orðum því sem sést:"
     }
     return prompts.get(language.lower(), prompts['en'])
 

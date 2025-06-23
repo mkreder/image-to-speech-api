@@ -1,0 +1,5 @@
+numpy<2.0
+opencv-python==4.10.0.84
+requests==2.31.0
+pygame==2.5.2
+Pillow==10.0.1
